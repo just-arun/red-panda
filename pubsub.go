@@ -8,17 +8,17 @@ import (
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
-func (st *redPanda) Publish(eventName string, payload []byte) (err error) {
+func (st *redPanda) Publish(event string, payload []byte) (err error) {
 	ctx := context.Background()
 	var wg sync.WaitGroup
 	wg.Add(1)
-	record := &kgo.Record{Topic: eventName, Value: payload}
-	st.Produce(ctx, record, func(_ *kgo.Record, err error) {
+	record := &kgo.Record{Topic: event, Value: payload}
+	st.Produce(ctx, record, func(r *kgo.Record, er error) {
 		defer wg.Done()
 		if err != nil {
 			fmt.Printf("record had a produce error: %v\n", err)
+			err=er
 		}
-
 	})
 	wg.Wait()
 	return
